@@ -28,8 +28,13 @@ services:
       options:
         max-size: "400k"
         max-file: "2"
+    networks:
+      - common-net
     ports:
       - "3003:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  
   wm-go:
     image: docker.uncharted.software/worldmodeler/wm-go:prod
     deploy:
@@ -54,8 +59,14 @@ services:
       options:
         max-size: "400k"
         max-file: "2"
+    networks:
+      - common-net
     ports:
       - "4200:4200"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  
+  
   wm-curation-recommendation:
     image: docker.uncharted.software/worldmodeler/wm-curation-recommendation:prod
     deploy:
@@ -80,13 +91,57 @@ services:
       options:
         max-size: "400k"
         max-file: "2"
+    networks:
+      - common-net
     ports:
       - "5005:5000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  
+  
+  wm-queue:
+    image: docker.uncharted.software/worldmodeler/wm-request-queue:latest
+    deploy:
+      placement:
+        constraints: [node.role != manager]
+      update_config:
+        parallelism: 1
+        delay: 60s
+        failure_action: rollback
+      restart_policy:
+        condition: any
+      replicas: 1
+      resources:
+        limits:
+          memory: 2048M
+          cpus: '2'
+    secrets:
+      - source: WM_QUEUE_ENV_FILE
+        target: /wm.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "400k"
+        max-file: "2"
+    networks:
+      - common-net
+    ports:
+      - "4040:4040"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 secrets:
   WM_GO_ENV_FILE:
     file: ./envs/wm-go.env
   WM_CURATION_RECOMMENDATIONS_ENV_FILE:
     file: ./envs/wm-curation-recommendation.env
+  WM_QUEUE_ENV_FILE:
+    file: ./envs/wm-queue.env
   CAUSEMOS_ENV_FILE:
     file: ./envs/causemos.env
+
+networks:
+  common-net:
+    name: common-net
+    driver: bridge
+
