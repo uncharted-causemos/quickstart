@@ -1,0 +1,92 @@
+version: '3.7'
+
+services:
+  causemos:
+    image: docker.uncharted.software/worldmodeler/wm-server:prod
+    depends_on:
+      - wm-curation-recommendation
+      - wm-go
+    deploy:
+      placement:
+        constraints: [node.role != manager]
+      update_config:
+        parallelism: 1
+        delay: 60s
+        failure_action: rollback
+      restart_policy:
+        condition: any
+      replicas: 1
+      resources:
+        limits:
+          memory: 2048M
+          cpus: '2'
+    secrets:
+      - source: CAUSEMOS_ENV_FILE
+        target: /server/.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "400k"
+        max-file: "2"
+    ports:
+      - "3003:3000"
+  wm-go:
+    image: docker.uncharted.software/worldmodeler/wm-go:prod
+    deploy:
+      placement:
+        constraints: [node.role != manager]
+      update_config:
+        parallelism: 1
+        delay: 60s
+        failure_action: rollback
+      replicas: 1
+      restart_policy:
+        condition: any
+      resources:
+        limits:
+          memory: 2048M
+          cpus: '2'
+    secrets:
+      - source: WM_GO_ENV_FILE
+        target: /wm.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "400k"
+        max-file: "2"
+    ports:
+      - "4200:4200"
+  wm-curation-recommendation:
+    image: docker.uncharted.software/worldmodeler/wm-curation-recommendation:prod
+    deploy:
+      placement:
+        constraints: [node.role != manager]
+      update_config:
+        parallelism: 1
+        delay: 60s
+        failure_action: rollback
+      restart_policy:
+        condition: any
+      replicas: 1
+      resources:
+        limits:
+          memory: 2048M
+          cpus: '2'
+    secrets:
+      - source: WM_CURATION_RECOMMENDATIONS_ENV_FILE
+        target: /app/.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "400k"
+        max-file: "2"
+    ports:
+      - "5005:5000"
+
+secrets:
+  WM_GO_ENV_FILE:
+    file: ./envs/wm-go.env
+  WM_CURATION_RECOMMENDATIONS_ENV_FILE:
+    file: ./envs/wm-curation-recommendation.env
+  CAUSEMOS_ENV_FILE:
+    file: ./envs/causemos.env
