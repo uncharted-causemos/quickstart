@@ -41,6 +41,7 @@ prefect server create-tenant --name default --slug default
 
 
 ### Running infrastructure stack
+A docker-compose file is provided here with all the necessary infrastructure for Causemos backend. Note this is quite a heavy stacked and may not perform well on a single computer/laptop.
 
 ```
 cd infra
@@ -52,10 +53,10 @@ When the stack is brought up ther are a couple of configurations we need to do:
 
 - Goto prefect `http://localhost:8080` and create a new "Production" project
 - Goto minio `http://localhost:9000` and create the following buckets
- - tiles-v3
- - vector-tiles
- - new-models
- - new-indicators
+  - tiles-v3
+  - vector-tiles
+  - new-models
+  - new-indicators
 - Create ES mapping schema - TODO
 
 
