@@ -4,10 +4,10 @@ Provide a quick way to run Causemos technology stack. This will build and run Ca
 The application side covers these services
 - https://github.com/uncharted-causemos/causemos
 - https://github.com/uncharted-causemos/wm-go
+- https://github.com/uncharted-causemos/atlas
 - https://github.com/uncharted-causemos/wm-curation-recommendation
+- https://github.com/uncharted-causemos/slow-tortoise
 
-
-The infrastructure side covers parallel data processing and data storage
 
 
 ### Prerequisite
@@ -31,8 +31,8 @@ prefect server create-tenant --name default --slug default
   [server.ui]
     apollo_url="http://localhost:4200/graphql"
 
-  [server.telemetry]
-    enabled = false
+[server.telemetry]
+  enabled = false
 
 [engine]
     [engine.executor]
@@ -48,32 +48,32 @@ cd infra
 docker-compose up
 ```
 
-#### Setup
+### Infrastructure setup/defaults
 When the stack is brought up ther are a couple of configurations we need to do:
 
-- Goto prefect `http://localhost:8080` and create a new "Production" project
-- Goto minio `http://localhost:9000` and create the following buckets
-  - tiles-v3
-  - vector-tiles
-  - new-models
-  - new-indicators
-- Create ES mapping schema - TODO
+##### Prefect setup
+Goto prefect `http://localhost:8080` and create a new "Production" project
+
+##### Minio setup
+Goto minio `http://localhost:9000` and create the following buckets
+ - tiles-v3
+ - vector-tiles
+ - new-models
+ - new-indicators
 
 
-### Run the application stack
-Make sure the configurations in `envs` folder are correct and pointing to the right dependencies.
-
+##### ElasticSearch
+Create initial mapping schema for ES datastore
 ```
-cd services
-docker-compose up
+git clone git@github.com:uncharted-causemos/atlas.git
+
+cd atlas
+
+ES=<elastic_url> python ./es_mapper.py
 ```
 
-Causemos will be available on `http://localhost:3003`
 
-
-
-
-### Prefect agents
+#### Prefect agent (Models and Indicators)
 Agents are used to coordinate data ingestion tasks, there are two agents in Causemos: a dask/docker agent and a sequential agent
 
 Dask/docker agent: In a terminal or tmux session, run the prefect docker agent
@@ -88,14 +88,26 @@ prefect agent docker start \
 ```
 
 
+#### Prefect agent (Bring your own data)
 Sequential agent: In a terminal or tmux session, run the prefect docker agent
+
 ```
 TODO
 ```
 
 
+### Running the application stack
+Make sure the configuration files in `envs` folder are correct and pointing to the right dependencies.
+
+```
+cd services
+docker-compose up
+```
+Causemos will be available on `http://localhost:3003`
 
 
 
 
 
+```
+### Loading knowledge data
