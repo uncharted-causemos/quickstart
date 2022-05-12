@@ -62,7 +62,7 @@ services:
     networks:
       - common-net
     ports:
-      - "4200:4200"
+      - "4500:4500"
     extra_hosts:
       - "host.docker.internal:host-gateway"
   
