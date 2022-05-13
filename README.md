@@ -1,14 +1,18 @@
 ## quickstart
 Provide a quick way to run Causemos technology stack. This will build and run Causemos and related services.
 
-The application side covers these services
+The application side covers these services and more detail about individual services can be found here
 - https://github.com/uncharted-causemos/causemos
 - https://github.com/uncharted-causemos/wm-go
-- https://github.com/uncharted-causemos/atlas
 - https://github.com/uncharted-causemos/wm-curation-recommendation
 - https://github.com/uncharted-causemos/slow-tortoise
+- https://github.com/uncharted-causemos/anansi
+- https://github.com/uncharted-causemos/atlas
 
 
+### Requirements
+- docker version 20+
+- python version 3+
 
 ### Prerequisite
 We need to configure prefect backend and tenant
@@ -18,8 +22,12 @@ We need to configure prefect backend and tenant
 ```
 git clone git@github.com:uncharted-causemos/slow-tortoise.git
 
+cd slow-tortoise
+
 pip install -e .
+
 prefect backend server
+
 prefect server create-tenant --name default --slug default
 ```
 
@@ -43,13 +51,15 @@ prefect server create-tenant --name default --slug default
 ### Running infrastructure stack
 A docker-compose file is provided here with all the necessary infrastructure for Causemos backend. Note this is quite a heavy stacked and may not perform well on a single computer/laptop.
 
+After cloning this repository
 ```
 cd infra
+
 docker-compose up
 ```
 
 ### Infrastructure setup/defaults
-When the stack is brought up ther are a couple of configurations we need to do:
+After the infrastructure is brought up ther are a couple of configurations we need to do:
 
 ##### Prefect setup
 Goto prefect `http://localhost:8080` and create a new "Production" project
@@ -72,6 +82,22 @@ cd atlas
 ES=<elastic_url> python ./es_mapper.py
 ```
 
+##### Configure geo reference dataset
+Download and extract the following geolocation datasets:
+- http://download.geonames.org/export/dump/allCountries.zip
+- http://clulab.cs.arizona.edu/models/gadm_woredas.txt
+
+Then use anansi utility to load the dataset
+```
+# 1. Clone or swtich to over to anansi
+git clone git@github.com:uncharted-causemos/anansi.git
+
+# 2. Copy the two data sets to src directory of anansi
+
+# 3. In src, run
+ES=<es_url> ES_USER=<user> ES_PASSWORD=<password> python geo_loader.py
+```
+
 
 #### Prefect agent (Models and Indicators)
 Agents are used to coordinate data ingestion tasks, there are two agents in Causemos: a dask/docker agent and a sequential agent
@@ -80,15 +106,31 @@ Dask/docker agent: In a terminal or tmux session, run the prefect docker agent
 ```
 prefect agent docker start \
   --no-pull \
-	--api http://localhost:4200 \
-	--label wm-prefect-server.openstack.uncharted.software \
-	--network common-net \
-	--show-flow-logs \
-	--env WM_DASK_SCHEDULER=localhost:8786
+  --api http://localhost:4200 \
+  --label wm-prefect-server.openstack.uncharted.software \
+  --network common-net \
+  --show-flow-logs \
+  --env WM_DASK_SCHEDULER=localhost:8786
 ```
 
 #### Register data-pipeline task into Prefect/Dask
+Copy the following into `register_datapipeline.sh` and change
+```
+#!/bin/bash
 
+# registration process reads this env var to find the prefect server
+export PREFECT__SERVER__HOST=http://localhost
+export DASK_SCHEDULER=localhost:8786
+
+# set this to true if images should be pushed to the docker registry as part of the
+# registration process - not necessary if testing locally
+export WM_PUSH_IMAGE=true
+
+PROJECT="Production"
+
+# add calls to register flows here
+prefect register --project="$PROJECT" --label wm-prefect-server.openstack.uncharted.software --label docker --path ../flows/data_pipeline.py
+```
 
 
 ### Running the application stack
