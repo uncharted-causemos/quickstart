@@ -1,5 +1,7 @@
 ## quickstart
-Provide a quick way to run Causemos technology stack. This will build and run Causemos and related services.
+Provide a quick way to run Causemos technology stacks. This will build and run Causemos and related services.
+
+![system](images/system.png)
 
 The application side covers these services and more detail about individual services can be found here
 - https://github.com/uncharted-causemos/causemos
