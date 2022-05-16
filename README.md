@@ -132,6 +132,43 @@ PROJECT="Production"
 prefect register --project="$PROJECT" --label wm-prefect-server.openstack.uncharted.software --label docker --path ../flows/data_pipeline.py
 ```
 
+### Setting up curation/recommendation service (optional)
+This is an optional part of Causemos that helps with bulk-curations and CAG building
+
+```
+# Clone repo
+git@github.com:uncharted-causemos/wm-curation-recommendation.git
+
+# Get SpaCy model
+Download from https://spacy.io/models/en then "en_core_web_lg" and extract the tar.gz into the data directory
+
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+Then copy the following into `.env`, ensure ES parameters and NLP_FILE_PATH are correct with respect to your setup
+
+```
+ES_URL=http://localhost:9200/
+ES_TIMEOUT=120
+ES_USERNAME=
+ES_PASSWORD=
+
+NLP_FILE_PATH=data/en_core_web_lg-3.0.0/en_core_web_lg/en_core_web_lg-3.0.0
+
+ML_MODEL_DATA_DIR=resources/ml_models/
+
+C_FORCE_ROOT=true
+CELERY_BROKER_URL=redis://redis:6379
+```
+
+To start the service, use
+
+```
+docker-compose up --build
+```
+
 
 ### Running the application stack
 Make sure the configuration files in `envs` folder are correct and pointing to the right dependencies.
