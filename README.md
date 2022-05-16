@@ -49,7 +49,7 @@ prefect server create-tenant --name default --slug default
 
 
 ### Running infrastructure stack
-A docker-compose file is provided here with all the necessary infrastructure for Causemos backend. Note this is quite a heavy stacked and may not perform well on a single computer/laptop.
+A docker-compose file is provided here with all the necessary infrastructure for Causemos backend. Note this is quite a heavy stack and may not perform well on a single computer/laptop.
 
 After cloning this repository
 ```
@@ -59,13 +59,13 @@ docker-compose up
 ```
 
 ### Infrastructure setup/defaults
-After the infrastructure is brought up ther are a couple of configurations we need to do:
+After the infrastructure is brought up there are a couple of configurations we need to do:
 
 ##### Prefect setup
-Goto prefect `http://localhost:8080` and create a new "Production" project
+Go to prefect `http://localhost:8080` and create a new "Production" project
 
 ##### Minio setup
-Goto minio `http://localhost:9000` and create the following buckets
+Go to minio `http://localhost:9000` and create the following buckets
  - tiles-v3
  - vector-tiles
  - new-models
@@ -89,7 +89,7 @@ Download and extract the following geolocation datasets:
 
 Then use anansi utility to load the dataset
 ```
-# 1. Clone or swtich to over to anansi
+# 1. Clone or switch over to anansi
 git clone git@github.com:uncharted-causemos/anansi.git
 
 # 2. Copy the two data sets to src directory of anansi
@@ -114,7 +114,7 @@ prefect agent docker start \
 ```
 
 #### Register data-pipeline task into Prefect/Dask
-Copy the following into `register_datapipeline.sh` and change
+Copy the following into `register_datapipeline.sh`.
 ```
 #!/bin/bash
 
@@ -157,7 +157,7 @@ Please see the following two scripts for acquiring INDRA and DART datasets from 
 
 
 
-To create a knowledge-base we can run the following, for all intent and purpose here SOURCE_* and TARGET_* are the same.
+To create a knowledge-base we can run the following, for all intents and purposes here SOURCE_* and TARGET_* are the same.
 
 ```
 #!/usr/bin/env bash
@@ -174,8 +174,8 @@ python src/knowledge_pipeline.py
 ```
 
 
-### Bring your own data
-Bring your own data feature requires installing a Prefect task and agent. This assumes that both DART and INDRA are running as services.
+### Bring-your-own-data
+The bring-your-own-data feature requires installing a Prefect task and agent. This assumes that both DART and INDRA are running as services.
 
 
 ```
@@ -199,14 +199,14 @@ export INDRA_HOST=
 export CURATION_HOST=http://localhost:5000
 ```
 
-Regiser the flow with Prefect
+Register the flow with Prefect
 ```
 source incremental.env
 
 PREFECT__ENGINE__EXECUTOR__DEFAULT_CLASS="prefect.executors.LocalExecutor" PYTHONPATH="${PYTHONPATH}:./src" prefect agent local start --api "http://localhost:4200/graphql" --label "non-dask"
 ```
 
-In a terminal or tmux session, run the prefect docker agent
+In a terminal or tmux session, run the prefect docker agent.
 
 
 #### Registering task
