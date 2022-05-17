@@ -1,6 +1,7 @@
 version: '3.7'
 
 services:
+  # Causemos
   causemos:
     image: docker.uncharted.software/worldmodeler/wm-server:prod
     depends_on:
@@ -35,6 +36,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
   
+  # Data service
   wm-go:
     image: docker.uncharted.software/worldmodeler/wm-go:prod
     deploy:
@@ -66,7 +68,16 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
   
-  
+  # recommendation stack
+  redis:
+    image: 'docker-hub.uncharted.software/redis:5.0.4-stretch'
+    volumes:
+      - type: volume
+        source: redis
+        target: /data
+        volume:
+          nocopy: true
+
   wm-curation-recommendation:
     image: docker.uncharted.software/worldmodeler/wm-curation-recommendation:prod
     deploy:
@@ -95,10 +106,58 @@ services:
       - common-net
     ports:
       - "5005:5000"
+    links:
+      - 'redis'
+    depends_on:
+      - 'redis'
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+      - type: volume
+        source: ml_models
+        target: /app/resources/ml_models
+        volume:
+          nocopy: true
+
+  celery:
+    image: docker.uncharted.software/worldmodeler/wm-curation-recommendation:prod
+    deploy:
+      placement:
+        constraints: [node.role != manager]
+      update_config:
+        parallelism: 1
+        delay: 60s
+        failure_action: rollback
+      restart_policy:
+        condition: any
+      replicas: 1
+      resources:
+        limits:
+          memory: 2048M
+          cpus: '2'
+    secrets:
+      - source: WM_CURATION_RECOMMENDATIONS_ENV_FILE
+        target: /app/.env
+    links:
+      - 'redis'
+    depends_on:
+      - 'redis'
+    command: celery -A web.celery.worker.celery worker --loglevel=info
+    volumes:
+      - type: bind
+        source: ./data
+        target: /app/data
+      - type: volume
+        source: ml_models
+        target: /app/resources/ml_models
+        volume:
+          nocopy: true
+
   
-  
+  # WM request queue stack
   wm-queue:
     image: docker.uncharted.software/worldmodeler/wm-request-queue:latest
     deploy:
@@ -145,3 +204,6 @@ networks:
     name: common-net
     driver: bridge
 
+volumes:
+  redis: {}
+  ml_models: {}

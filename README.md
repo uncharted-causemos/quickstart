@@ -1,5 +1,5 @@
 ## quickstart
-Provide a quick way to run Causemos technology stacks. This will build and run Causemos and related services.
+Provide a quick way to run dockerized version of Causemos technology stacks. This will build and run Causemos and related services.
 
 ![system](images/system.png)
 
@@ -10,16 +10,23 @@ The application side covers these services and more detail about individual serv
 - https://github.com/uncharted-causemos/slow-tortoise
 - https://github.com/uncharted-causemos/anansi
 - https://github.com/uncharted-causemos/atlas
+- https://github.com/uncharted-causemos/wm-request-queue
+
+The infrastructure side covers
+- [ElasticSearch](https://www.elastic.co/what-is/elasticsearch)
+- [Prefect](https://www.prefect.io/)
+- [DASK](https://dask.org/)
+- [minio](https://min.io/)
 
 
 ### Requirements
-- docker version 20+
-- python version 3+
+- Docker version 20+
+- Python version 3+
 
 ### Prerequisite
-We need to configure prefect backend and tenant
+We need to configure Prefect backend and tenant
 
-1. Clone repo and install prefect backend/tenant
+1. Clone repo and install Prefect backend/tenant
 
 ```
 git clone git@github.com:uncharted-causemos/slow-tortoise.git
@@ -64,7 +71,7 @@ docker-compose up
 After the infrastructure is brought up there are a couple of configurations we need to do:
 
 ##### Prefect setup
-Go to prefect `http://localhost:8080` and create a new "Production" project
+Go to Prefect `http://localhost:8080` and create a new "Production" project
 
 ##### Minio setup
 Go to minio `http://localhost:9000` and create the following buckets
@@ -104,7 +111,7 @@ ES=<es_url> ES_USER=<user> ES_PASSWORD=<password> python geo_loader.py
 #### Prefect agent (Models and Indicators)
 Agents are used to coordinate data ingestion tasks, there are two agents in Causemos: a dask/docker agent and a sequential agent
 
-Dask/docker agent: In a terminal or tmux session, run the prefect docker agent
+Dask/docker agent: In a terminal or tmux session, run the Prefect docker agent
 ```
 prefect agent docker start \
   --no-pull \
@@ -120,7 +127,7 @@ Copy the following into `register_datapipeline.sh`.
 ```
 #!/bin/bash
 
-# registration process reads this env var to find the prefect server
+# registration process reads this env var to find the Prefect server
 export PREFECT__SERVER__HOST=http://localhost
 export DASK_SCHEDULER=localhost:8786
 
@@ -138,38 +145,10 @@ prefect register --project="$PROJECT" --label wm-prefect-server.openstack.unchar
 This is an optional part of Causemos that helps with bulk-curations and CAG building
 
 ```
-# Clone repo
-git@github.com:uncharted-causemos/wm-curation-recommendation.git
-
 # Get SpaCy model
-Download from https://spacy.io/models/en then "en_core_web_lg" and extract the tar.gz into the data directory
-
-
-# Install dependencies
-pip install -r requirements.txt
+Download from https://spacy.io/models/en "en_core_web_lg" and extract the tar.gz into the data directory
 ```
 
-Then copy the following into `.env`, ensure ES parameters and NLP_FILE_PATH are correct with respect to your setup
-
-```
-ES_URL=http://localhost:9200/
-ES_TIMEOUT=120
-ES_USERNAME=
-ES_PASSWORD=
-
-NLP_FILE_PATH=data/en_core_web_lg-3.0.0/en_core_web_lg/en_core_web_lg-3.0.0
-
-ML_MODEL_DATA_DIR=resources/ml_models/
-
-C_FORCE_ROOT=true
-CELERY_BROKER_URL=redis://redis:6379
-```
-
-To start the service, use
-
-```
-docker-compose up --build
-```
 
 
 ### Running the application stack
@@ -212,6 +191,27 @@ INDRA_DATASET=<path_to_indra_directory> \
 python src/knowledge_pipeline.py
 ```
 
+#### Create embeddings for recommendation service (Optional)
+Once a INDRA dataset has been ingested, there will be an index `indra-{uuid}` identifier denoting the index created in ElasticSearch. We can then use this to create the recommender indices. Assuming wm-curation-recommendation service is running
+
+```
+curl -H "Content-type:application/json" -XPOST http://<curation_server>:<port>/recommendation/ingest/{indra_index} -d'
+{
+  "remove_factors": true,
+  "remove_statements": true,
+  "es_url": {destination_es}:9200
+}
+'
+```
+
+This will yield a task id while the indices are build asynchronously in the background. We can check the build status with 
+
+```
+http://{recommendation_server}:{port}/recommendation/task/{task_id}
+```
+
+
+
 
 ### Bring-your-own-data
 The bring-your-own-data feature requires installing a Prefect task and agent. This assumes that both DART and INDRA are running as services.
@@ -245,7 +245,7 @@ source incremental.env
 PREFECT__ENGINE__EXECUTOR__DEFAULT_CLASS="prefect.executors.LocalExecutor" PYTHONPATH="${PYTHONPATH}:./src" prefect agent local start --api "http://localhost:4200/graphql" --label "non-dask"
 ```
 
-In a terminal or tmux session, run the prefect docker agent.
+In a terminal or tmux session, run the Prefect docker agent.
 
 
 #### Registering task
