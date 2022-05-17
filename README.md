@@ -141,6 +141,30 @@ PROJECT="Production"
 prefect register --project="$PROJECT" --label wm-prefect-server.openstack.uncharted.software --label docker --path ../flows/data_pipeline.py
 ```
 
+### Setting up concept alignment
+
+The concept aligner is used to map a string or ontological concept to a datacube in Dojo.
+
+```
+# Download docker image
+docker pull clulab/conceptalignment:1.2.0
+
+# Run
+docker run -p 9001:9001 --name conceptalignment -e secret="<secret_for_web_server>" -e secrets="password1|password2" -v`pwd`/../credentials:/conceptalignment/credentials clulab/conceptalignment:1.2.0.
+```
+
+Note that `secret` is used internally by the web server to prevent some kinds of abuse and doesn't need to be coordinated with anything else. Just about any string will work.
+
+The other `secrets` need to be coordinated with API clients so that they can have access to the more resource intensive operations like reindexing. You can use multiple strings (separated by a `|`) to differentiate between API users, and pass any one of them along with API calls.
+
+The docker image comes bundled with a default ontology and index of Dojo.
+
+After running the image, you can call the `v2/reindex` endpoint with one of the `secrets` to rescrape and reindex from Dojo, assuming Dojo is up and running.
+
+Similarly, you can call the `/v2/addOntology` endpoint with an ontology ID to load the aligner with a new ontology. This requires DART to be up and running.
+
+Further information can be found in the [concept alignment repo](https://github.com/clulab/ConceptAlignment) and in the Swagger API documentation while running the image.
+
 ### Setting up curation/recommendation service (optional)
 This is an optional part of Causemos that helps with bulk-curations and CAG building
 
