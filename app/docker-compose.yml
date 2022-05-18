@@ -71,6 +71,8 @@ services:
   # recommendation stack
   redis:
     image: 'docker-hub.uncharted.software/redis:5.0.4-stretch'
+    networks:
+      - common-net
     volumes:
       - type: volume
         source: redis
@@ -138,6 +140,8 @@ services:
         limits:
           memory: 2048M
           cpus: '2'
+    networks:
+      - common-net
     secrets:
       - source: WM_CURATION_RECOMMENDATIONS_ENV_FILE
         target: /app/.env

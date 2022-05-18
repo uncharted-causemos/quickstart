@@ -155,7 +155,7 @@ Download from https://spacy.io/models/en "en_core_web_lg" and extract the tar.gz
 Make sure the configuration files in `envs` folder are correct and pointing to the right dependencies.
 
 ```
-cd services
+cd app 
 docker-compose up
 ```
 Causemos will be available on `http://localhost:3003`
@@ -192,7 +192,9 @@ python src/knowledge_pipeline.py
 ```
 
 #### Create embeddings for recommendation service (Optional)
-Once a INDRA dataset has been ingested, there will be an index `indra-{uuid}` identifier denoting the index created in ElasticSearch. We can then use this to create the recommender indices. Assuming wm-curation-recommendation service is running
+Once a INDRA dataset has been ingested, there will be an index `indra-{uuid}` identifier denoting the index created in ElasticSearch. We can then use this to create the recommender indices. Assuming wm-curation-recommendation service is running.
+
+Note if we are using the ElasticSearch inside a docker-compose, the `es_url` needs to be reachable, e.g.  `"es_url": "http://elasticsearch:9200"`.
 
 ```
 curl -H "Content-type:application/json" -XPOST http://<curation_server>:<port>/recommendation/ingest/{indra_index} -d'
@@ -207,9 +209,8 @@ curl -H "Content-type:application/json" -XPOST http://<curation_server>:<port>/r
 This will yield a task id while the indices are build asynchronously in the background. We can check the build status with 
 
 ```
-http://{recommendation_server}:{port}/recommendation/task/{task_id}
+curl http://{recommendation_server}:{port}/recommendation/task/{task_id}
 ```
-
 
 
 
