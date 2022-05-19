@@ -1,8 +1,7 @@
 ## quickstart
 This repository provides a dockerized version of Causemos and its related services. This enables one to rapidly setup and run experiments. There are two main setup script: an application centric that deal with Causemos's sevices, and an infrastructure setup dealing with data storage, schedulers and compute layers. 
 
-Running Causemos stack can be resource intensive, best peroformance is obtained by distributing across a docker-swarm cluster or run application/infrastucture setups on two different machine. On a single machine one will need at least 8GB dedicated to Docker.
-
+Running Causemos stack can be resource intensive, best peroformance is obtained by distributing across a docker-swarm cluster or split the application/infrastucture setups across different machines. On a single machine one will need at least 10GB memory dedicated to Docker.
 
 
 ![system](images/system.png)
@@ -28,7 +27,7 @@ The infrastructure side covers
 - Python version 3+
 
 ### Prerequisite
-We need to configure Prefect backend and tenant
+We need to configure Prefect backend and tenant, this should be on the machine where you want to run the prefect infrastructure.
 
 1. Clone repo and install Prefect backend/tenant
 
@@ -62,9 +61,10 @@ prefect server create-tenant --name default --slug default
 
 
 ### Running infrastructure stack
-A docker-compose file is provided here with all the necessary infrastructure for Causemos backend. Note this is quite a heavy stack and may not perform well on a single computer/laptop.
+A docker-compose file is provided here with all the necessary infrastructure and datastores for Causemos. 
 
 After cloning this repository
+
 ```
 cd infra
 
@@ -95,7 +95,7 @@ cd atlas
 ES=<elastic_url> python ./es_mapper.py
 ```
 
-##### Configure geo reference dataset
+##### Load geo reference dataset
 Download and extract the following geolocation datasets:
 - http://download.geonames.org/export/dump/allCountries.zip
 - http://clulab.cs.arizona.edu/models/gadm_woredas.txt
@@ -145,9 +145,9 @@ PROJECT="Production"
 prefect register --project="$PROJECT" --label wm-prefect-server.openstack.uncharted.software --label docker --path ../flows/data_pipeline.py
 ```
 
-### Setting up concept alignment
+### Setting up concept alignment (optional)
 
-The concept aligner is used to map a string or ontological concept to a datacube in Dojo.
+The concept aligner is used to map a string or ontological concept to a datacube in DOJO.
 
 ```
 # Download docker image
@@ -161,9 +161,9 @@ Note that `secret` is used internally by the web server to prevent some kinds of
 
 The other `secrets` need to be coordinated with API clients so that they can have access to the more resource intensive operations like reindexing. You can use multiple strings (separated by a `|`) to differentiate between API users, and pass any one of them along with API calls.
 
-The docker image comes bundled with a default ontology and index of Dojo.
+The docker image comes bundled with a default ontology and index of DOJO.
 
-After running the image, you can call the `v2/reindex` endpoint with one of the `secrets` to rescrape and reindex from Dojo, assuming Dojo is up and running.
+After running the image, you can call the `v2/reindex` endpoint with one of the `secrets` to rescrape and reindex from DOJO, assuming DOJO is up and running.
 
 Similarly, you can call the `/v2/addOntology` endpoint with an ontology ID to load the aligner with a new ontology. This requires DART to be up and running.
 
@@ -176,7 +176,6 @@ This is an optional part of Causemos that helps with bulk-curations and CAG buil
 # Get SpaCy model
 Download from https://spacy.io/models/en "en_core_web_lg" and extract the tar.gz into the data directory. Note you need `en_core_web_lg-3.0.0`.
 ```
-
 
 
 ### Running the application stack
@@ -283,4 +282,7 @@ Note: You need to edit `src/incremental_pipeline.py` and change the variable `sh
 python incremental_pipeline.py
 ```
 
+
+### app-kb
+app-kb provides a light-weight version of Causemos, without any quantitative features. It can be used to showcase and test knowledge extraction and knowledge assembly portions of World Modelers.
 
