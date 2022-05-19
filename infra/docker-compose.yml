@@ -47,7 +47,7 @@ services:
   worker:
     image: docker.uncharted.software/worldmodeler/wm-data-pipeline:latest
     deploy:
-      replicas: 3
+      replicas: 2
     logging:
       driver: "json-file"
       options:
@@ -121,7 +121,7 @@ services:
       PREFECT_SERVER__HASURA__ADMIN_SECRET: ${PREFECT_SERVER__HASURA__ADMIN_SECRET:-hasura-secret-admin-secret}
       PREFECT_SERVER__HASURA__HOST: hasura
     healthcheck:
-      interval: 20s
+      interval: 40s
       retries: 60
       start_period: 1s
       test: curl --fail --silent "http://graphql:4201/health" &> /dev/null || exit
@@ -159,7 +159,7 @@ services:
       PREFECT_API_URL: http://graphql:4201/graphql/
       PREFECT_SERVER__TELEMETRY__ENABLED: "true"
     healthcheck:
-      interval: 10s
+      interval: 40s
       retries: 60
       start_period: 1s
       test: curl --fail --silent "http://apollo:4200/.well-known/apollo/server-health"
@@ -179,7 +179,7 @@ services:
     environment:
       PREFECT_SERVER__APOLLO_URL: http://apollo:4200/graphql
     healthcheck:
-      interval: 30s
+      interval: 40s
       retries: 3
       test: curl --fail --silent --head "http://ui:8080/" &> /dev/null || exit 1
       timeout: 5s

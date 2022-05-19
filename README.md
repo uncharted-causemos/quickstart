@@ -1,5 +1,9 @@
 ## quickstart
-Provide a quick way to run dockerized version of Causemos technology stacks. This will build and run Causemos and related services.
+This repository provides a dockerized version of Causemos and its related services. This enables one to rapidly setup and run experiments. There are two main setup script: an application centric that deal with Causemos's sevices, and an infrastructure setup dealing with data storage, schedulers and compute layers. 
+
+Running Causemos stack can be resource intensive, best peroformance is obtained by distributing across a docker-swarm cluster or run application/infrastucture setups on two different machine. On a single machine one will need at least 8GB dedicated to Docker.
+
+
 
 ![system](images/system.png)
 
@@ -170,7 +174,7 @@ This is an optional part of Causemos that helps with bulk-curations and CAG buil
 
 ```
 # Get SpaCy model
-Download from https://spacy.io/models/en "en_core_web_lg" and extract the tar.gz into the data directory
+Download from https://spacy.io/models/en "en_core_web_lg" and extract the tar.gz into the data directory. Note you need `en_core_web_lg-3.0.0`.
 ```
 
 
