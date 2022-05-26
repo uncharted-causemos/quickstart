@@ -134,15 +134,16 @@ Copy the following into `register_datapipeline.sh`.
 # registration process reads this env var to find the Prefect server
 export PREFECT__SERVER__HOST=http://localhost
 export DASK_SCHEDULER=localhost:8786
-
-# set this to true if images should be pushed to the docker registry as part of the
-# registration process - not necessary if testing locally
-export WM_PUSH_IMAGE=true
+export WM_PUSH_IMAGE=false
 
 PROJECT="Production"
 
-# add calls to register flows here
 prefect register --project="$PROJECT" --label wm-prefect-server.openstack.uncharted.software --label docker --path ../flows/data_pipeline.py
+```
+
+Then run the script.
+```
+./register_datapipeline.sh
 ```
 
 ### Setting up concept alignment (optional)

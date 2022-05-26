@@ -3,7 +3,7 @@ version: '3.7'
 services:
   # Causemos
   causemos:
-    image: docker.uncharted.software/worldmodeler/wm-server:prod
+    image: uncharted/wm-causemos:latest
     depends_on:
       - wm-curation-recommendation
       - wm-go
@@ -37,8 +37,8 @@ services:
       - "host.docker.internal:host-gateway"
   
   # Data service
-  wm-go:
-    image: docker.uncharted.software/worldmodeler/wm-go:prod
+  causemos-data-service:
+    image: uncharted/wm-causemos-data-service:latest
     deploy:
       placement:
         constraints: [node.role != manager]
@@ -54,7 +54,7 @@ services:
           memory: 1024M
           cpus: '2'
     secrets:
-      - source: WM_GO_ENV_FILE
+      - source: DATA_SERVICE_ENV_FILE
         target: /wm.env
     logging:
       driver: "json-file"
@@ -70,7 +70,7 @@ services:
   
   # recommendation stack
   redis:
-    image: 'docker-hub.uncharted.software/redis:5.0.4-stretch'
+    image: redis:5.0.4-stretch
     networks:
       - common-net
     volumes:
@@ -80,8 +80,8 @@ services:
         volume:
           nocopy: true
 
-  wm-curation-recommendation:
-    image: docker.uncharted.software/worldmodeler/wm-curation-recommendation:prod
+  causemos-recommendation-service:
+    image: uncharted/wm-causemos-recommendation-service:latest
     deploy:
       placement:
         constraints: [node.role != manager]
@@ -97,7 +97,7 @@ services:
           memory: 2048M
           cpus: '2'
     secrets:
-      - source: WM_CURATION_RECOMMENDATIONS_ENV_FILE
+      - source: RECOMMENDATIONS_ENV_FILE
         target: /app/.env
     logging:
       driver: "json-file"
@@ -125,7 +125,7 @@ services:
           nocopy: true
 
   celery:
-    image: docker.uncharted.software/worldmodeler/wm-curation-recommendation:prod
+    image: uncharted/wm-causemos-recommendation-service:latest
     deploy:
       placement:
         constraints: [node.role != manager]
@@ -143,7 +143,7 @@ services:
     networks:
       - common-net
     secrets:
-      - source: WM_CURATION_RECOMMENDATIONS_ENV_FILE
+      - source: RECOMMENDATIONS_ENV_FILE
         target: /app/.env
     links:
       - 'redis'
@@ -162,8 +162,8 @@ services:
 
   
   # WM request queue stack
-  wm-queue:
-    image: docker.uncharted.software/worldmodeler/wm-request-queue:latest
+  causemos-queue-service:
+    image: uncharted/wm-causemos-queue-service:latest
     deploy:
       placement:
         constraints: [node.role != manager]
@@ -179,7 +179,7 @@ services:
           memory: 1024M
           cpus: '2'
     secrets:
-      - source: WM_QUEUE_ENV_FILE
+      - source: QUEUE_ENV_FILE
         target: /wm.env
     logging:
       driver: "json-file"
@@ -194,11 +194,11 @@ services:
       - "host.docker.internal:host-gateway"
 
 secrets:
-  WM_GO_ENV_FILE:
+  DATA_SERVICE_ENV_FILE:
     file: ./envs/wm-go.env
-  WM_CURATION_RECOMMENDATIONS_ENV_FILE:
+  RECOMMENDATIONS_ENV_FILE:
     file: ./envs/wm-curation-recommendation.env
-  WM_QUEUE_ENV_FILE:
+  QUEUE_ENV_FILE:
     file: ./envs/wm-queue.env
   CAUSEMOS_ENV_FILE:
     file: ./envs/causemos.env

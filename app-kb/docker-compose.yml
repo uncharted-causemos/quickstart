@@ -3,7 +3,7 @@ version: '3.7'
 services:
   # Causemos
   causemos:
-    image: docker.uncharted.software/worldmodeler/wm-server:prod
+    image: uncharted/wm-causemos:latest
     deploy:
       placement:
         constraints: [node.role != manager]
