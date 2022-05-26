@@ -135,6 +135,7 @@ Copy the following into `register_datapipeline.sh`.
 export PREFECT__SERVER__HOST=http://localhost
 export DASK_SCHEDULER=localhost:8786
 export WM_PUSH_IMAGE=false
+export WM_DATA_PIPELINE_IMAGE=uncharted/wm-causemos-data-pipeline
 
 PROJECT="Production"
 
