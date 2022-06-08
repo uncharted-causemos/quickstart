@@ -1,6 +1,22 @@
 version: '3.7'
 
 services:
+  # Elastic
+  elasticsearch:
+    image: uncharted/wm-causemos-elastic:latest
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:9200"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+    environment:
+      - xpack.security.enabled=false
+      - "discovery.type=single-node"
+    networks:
+      - common-net
+    ports:
+      - 9200:9200
+
   # Causemos
   causemos:
     image: uncharted/wm-causemos:latest
@@ -21,6 +37,9 @@ services:
         limits:
           memory: 1024M
           cpus: '2'
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
     secrets:
       - source: CAUSEMOS_ENV_FILE
         target: /server/.env
@@ -35,6 +54,39 @@ services:
       - "3003:3000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  # Anansi
+  anansi:
+    image: uncharted/wm-causemos-anansi:latest
+    deploy:
+      placement:
+        constraints: [node.role != manager]
+      update_config:
+        parallelism: 1
+        delay: 60s
+        failure_action: rollback
+      restart_policy:
+        condition: any
+      replicas: 1
+      resources:
+        limits:
+          memory: 1048M
+          cpus: '2'
+    secrets:
+      - source: ANANSI_ENV_FILE
+        target: /web/.env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "400k"
+        max-file: "2"
+    networks:
+      - common-net
+    ports:
+      - "6000:6000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   
   # Data service
   causemos-data-service:
@@ -202,6 +254,9 @@ secrets:
     file: ./envs/wm-queue.env
   CAUSEMOS_ENV_FILE:
     file: ./envs/causemos.env
+  ANANSI_ENV_FILE:
+    file: ./envs/anansi.env
+
 
 networks:
   common-net:

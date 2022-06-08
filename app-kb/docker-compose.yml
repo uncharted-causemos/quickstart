@@ -3,7 +3,6 @@ version: '3.7'
 services:
   # Elastic
   elasticsearch:
-    # image: docker.elastic.co/elasticsearch/elasticsearch:7.17.3
     image: uncharted/wm-causemos-elastic:latest
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost:9200"]
@@ -55,7 +54,6 @@ services:
 
   # Anansi
   anansi:
-    # image: uncharted/wm-causemos-anansi:latest
     image: uncharted/wm-causemos-anansi:latest
     deploy:
       placement:
