@@ -85,33 +85,6 @@ Go to minio `http://localhost:9000` and create the following buckets
  - new-indicators
 
 
-##### ElasticSearch
-Create initial mapping schema for ES datastore
-```
-git clone git@github.com:uncharted-causemos/atlas.git
-
-cd atlas
-
-ES=<elastic_url> python ./es_mapper.py
-```
-
-##### Load geo reference dataset
-Download and extract the following geolocation datasets:
-- http://download.geonames.org/export/dump/allCountries.zip
-- http://clulab.cs.arizona.edu/models/gadm_woredas.txt
-
-Then use anansi utility to load the dataset
-```
-# 1. Clone or switch over to anansi
-git clone git@github.com:uncharted-causemos/anansi.git
-
-# 2. Copy the two data sets to src directory of anansi
-
-# 3. In src, run
-ES=<es_url> ES_USER=<user> ES_PASSWORD=<password> python geo_loader.py
-```
-
-
 #### Prefect agent (Models and Indicators)
 Agents are used to coordinate data ingestion tasks, there are two agents in Causemos: a dask/docker agent and a sequential agent
 
@@ -192,32 +165,15 @@ Causemos will be available on `http://localhost:3003`
 
 
 ### Loading knowledge data
-Data loaders are in the [anansi repository](https://github.com/uncharted-causemos/anansi).
+Use the curl command to load a knowledge base. Replace the `dart` and `indra` fields as appropriate. 
 
 ```
-git clone git@github.com:uncharted-causemos/anansi.git
-```
-
-Please see the following two scripts for acquiring INDRA and DART datasets from running services. From here on out we will assume these two datasets are available. 
-- scripts/build_dart.sh
-- scripts/download_indra_s3.py 
-
-
-
-To create a knowledge-base we can run the following, for all intents and purposes here SOURCE_* and TARGET_* are the same.
-
-```
-#!/usr/bin/env bash
-
-SOURCE_ES=xyz \
-SOURCE_USERNAME=xyz \
-SOURCE_PASSWORD=xyz \
-TARGET_ES=xyz \
-TARGET_USERNAME=xyz \
-TARGET_PASSWORD=xyz \
-DART_DATA=<path_to_dart_cdr.json> \
-INDRA_DATASET=<path_to_indra_directory> \
-python src/knowledge_pipeline.py
+curl -XPOST -H "Content-type: application/json" http://localhost:6000/kb -d'
+{
+  "indra": "http://10.64.16.209:4005/pipeline-test/indra",
+  "dart": "http://10.64.16.209:4005/pipeline-test/dart/july-sample.jsonl"
+}
+'
 ```
 
 #### Create embeddings for recommendation service (Optional)
@@ -240,51 +196,3 @@ This will yield a task id while the indices are build asynchronously in the back
 ```
 curl http://{recommendation_server}:{port}/recommendation/task/{task_id}
 ```
-
-
-
-### Bring-your-own-data
-The bring-your-own-data feature requires installing a Prefect task and agent. This assumes that both DART and INDRA are running as services.
-
-
-```
-git clone git@github.com:uncharted-causemos/anansi.git
-```
-
-#### Prefect agent
-
-Create an `incremental.env` file, and populate the values
-```
-export SOURCE_ES=
-export SOURCE_USERNAME=
-export SOURCE_PASSWORD=
-export TARGET_ES=
-export TARGET_USERNAME=
-export TARGET_PASSWORD=
-export DART_HOST=
-export DART_USER=
-export DART_PASS=
-export INDRA_HOST=
-export CURATION_HOST=http://localhost:5000
-```
-
-Register the flow with Prefect
-```
-source incremental.env
-
-PREFECT__ENGINE__EXECUTOR__DEFAULT_CLASS="prefect.executors.LocalExecutor" PYTHONPATH="${PYTHONPATH}:./src" prefect agent local start --api "http://localhost:4200/graphql" --label "non-dask"
-```
-
-In a terminal or tmux session, run the Prefect docker agent.
-
-
-#### Registering task
-Note: You need to edit `src/incremental_pipeline.py` and change the variable `should_register` to True
-```
-python incremental_pipeline.py
-```
-
-
-### app-kb
-app-kb provides a light-weight version of Causemos, without any quantitative features. It can be used to showcase and test knowledge extraction and knowledge assembly portions of World Modelers.
-
