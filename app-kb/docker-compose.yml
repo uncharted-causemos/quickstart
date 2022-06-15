@@ -49,8 +49,6 @@ services:
       - common-net
     ports:
       - "3003:3000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   # Anansi
   anansi:
@@ -81,8 +79,6 @@ services:
       - common-net
     ports:
       - "6000:6000"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
 secrets:
   CAUSEMOS_ENV_FILE:
