@@ -23,12 +23,6 @@ services:
     deploy:
       placement:
         constraints: [node.role != manager]
-      update_config:
-        parallelism: 1
-        delay: 60s
-        failure_action: rollback
-      restart_policy:
-        condition: any
       replicas: 1
       resources:
         limits:
@@ -40,11 +34,6 @@ services:
     secrets:
       - source: CAUSEMOS_ENV_FILE
         target: /server/.env
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "400k"
-        max-file: "2"
     networks:
       - common-net
     ports:
@@ -56,12 +45,6 @@ services:
     deploy:
       placement:
         constraints: [node.role != manager]
-      update_config:
-        parallelism: 1
-        delay: 60s
-        failure_action: rollback
-      restart_policy:
-        condition: any
       replicas: 1
       resources:
         limits:
@@ -70,11 +53,6 @@ services:
     secrets:
       - source: ANANSI_ENV_FILE
         target: /web/.env
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "400k"
-        max-file: "2"
     networks:
       - common-net
     ports:
