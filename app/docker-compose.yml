@@ -26,12 +26,6 @@ services:
     deploy:
       placement:
         constraints: [node.role != manager]
-      update_config:
-        parallelism: 1
-        delay: 60s
-        failure_action: rollback
-      restart_policy:
-        condition: any
       replicas: 1
       resources:
         limits:
@@ -43,11 +37,6 @@ services:
     secrets:
       - source: CAUSEMOS_ENV_FILE
         target: /server/.env
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "400k"
-        max-file: "2"
     networks:
       - common-net
     ports:
@@ -61,12 +50,6 @@ services:
     deploy:
       placement:
         constraints: [node.role != manager]
-      update_config:
-        parallelism: 1
-        delay: 60s
-        failure_action: rollback
-      restart_policy:
-        condition: any
       replicas: 1
       resources:
         limits:
@@ -75,11 +58,6 @@ services:
     secrets:
       - source: ANANSI_ENV_FILE
         target: /web/.env
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "400k"
-        max-file: "2"
     networks:
       - common-net
     ports:
@@ -94,13 +72,7 @@ services:
     deploy:
       placement:
         constraints: [node.role != manager]
-      update_config:
-        parallelism: 1
-        delay: 60s
-        failure_action: rollback
       replicas: 1
-      restart_policy:
-        condition: any
       resources:
         limits:
           memory: 1024M
@@ -108,11 +80,6 @@ services:
     secrets:
       - source: DATA_SERVICE_ENV_FILE
         target: /wm.env
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "400k"
-        max-file: "2"
     networks:
       - common-net
     ports:
@@ -137,12 +104,6 @@ services:
     deploy:
       placement:
         constraints: [node.role != manager]
-      update_config:
-        parallelism: 1
-        delay: 60s
-        failure_action: rollback
-      restart_policy:
-        condition: any
       replicas: 1
       resources:
         limits:
@@ -151,11 +112,6 @@ services:
     secrets:
       - source: RECOMMENDATIONS_ENV_FILE
         target: /app/.env
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "400k"
-        max-file: "2"
     networks:
       - common-net
     ports:
@@ -181,12 +137,6 @@ services:
     deploy:
       placement:
         constraints: [node.role != manager]
-      update_config:
-        parallelism: 1
-        delay: 60s
-        failure_action: rollback
-      restart_policy:
-        condition: any
       replicas: 1
       resources:
         limits:
@@ -219,12 +169,6 @@ services:
     deploy:
       placement:
         constraints: [node.role != manager]
-      update_config:
-        parallelism: 1
-        delay: 60s
-        failure_action: rollback
-      restart_policy:
-        condition: any
       replicas: 1
       resources:
         limits:
@@ -233,11 +177,6 @@ services:
     secrets:
       - source: QUEUE_ENV_FILE
         target: /wm.env
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "400k"
-        max-file: "2"
     networks:
       - common-net
     ports:
