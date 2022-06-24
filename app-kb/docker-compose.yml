@@ -50,6 +50,9 @@ services:
         limits:
           memory: 1048M
           cpus: '2'
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
     secrets:
       - source: ANANSI_ENV_FILE
         target: /web/.env
@@ -57,6 +60,8 @@ services:
       - common-net
     ports:
       - "6000:6000"
+    volumes:
+      - ./indra_data:/indra_data
 
 secrets:
   CAUSEMOS_ENV_FILE:
