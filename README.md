@@ -142,7 +142,7 @@ After running the image, you can call the `v2/reindex` endpoint with one of the 
 
 Similarly, you can call the `/v2/addOntology` endpoint with an ontology ID to load the aligner with a new ontology. This requires DART to be up and running.
 
-Further information can be found in the [concept alignment repo](https://github.com/clulab/ConceptAlignment) and in the Swagger API documentation while running the image.
+Further information can be found in the [concept alignment repo](https://github.com/clulab/ConceptAlignment) and in the Swagger API documentation (http://localhost:9001/api) while running the image.
 
 ### Setting up curation/recommendation service (optional)
 This is an optional part of Causemos that helps with bulk-curations and CAG building
