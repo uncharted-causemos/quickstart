@@ -129,7 +129,7 @@ The concept aligner is used to map a string or ontological concept to a datacube
 docker pull clulab/conceptalignment:1.2.0
 
 # Run
-docker run -p 9001:9001 --name conceptalignment -e secret="<secret_for_web_server>" -e secrets="password1|password2" -v`pwd`/../credentials:/conceptalignment/credentials clulab/conceptalignment:1.2.0.
+docker run -p 9001:9001 --name conceptalignment -e secret="<secret_for_web_server>" -e secrets="password1|password2" -v`pwd`/../credentials:/conceptalignment/credentials clulab/conceptalignment:1.2.0
 ```
 
 Note that `secret` is used internally by the web server to prevent some kinds of abuse and doesn't need to be coordinated with anything else. Just about any string will work.
