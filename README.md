@@ -133,6 +133,8 @@ docker run \
   -p 9001:9001 \
   -e dojo=DOJO_URL \
   -e REST_CONSUMER_ONTOLOGYSERVICE=DART_URL \
+  -e REST_CONSUMER_USERNAME=DART_USER \
+  -e REST_CONSUMER_PASSWORD=DART_PASSWORD \
   -e secret=SECRET_FOR_WEB_SERVER \
   -e secrets=PASSWORD1|PASSWORD2 \
   -v`pwd`/credentials:/conceptalignment/credentials clulab/conceptalignment:1.2.0
