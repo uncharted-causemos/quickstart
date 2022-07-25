@@ -129,10 +129,23 @@ The concept aligner is used to map a string or ontological concept to a datacube
 docker pull clulab/conceptalignment:1.2.0
 
 # Run
-docker run -p 9001:9001 --name conceptalignment -e secret="<secret_for_web_server>" -e secrets="password1|password2" -v`pwd`/../credentials:/conceptalignment/credentials clulab/conceptalignment:1.2.0
+docker run \
+  -p 9001:9001 \
+  -e dojo=DOJO_URL \
+  -e REST_CONSUMER_ONTOLOGYSERVICE=DART_URL \
+  -e secret=SECRET_FOR_WEB_SERVER \
+  -e secrets=PASSWORD1|PASSWORD2 \
+  -v`pwd`/credentials:/conceptalignment/credentials clulab/conceptalignment:1.2.0
 ```
 
-Note that `secret` is used internally by the web server to prevent some kinds of abuse and doesn't need to be coordinated with anything else. Just about any string will work.
+The credentials mount should have a `DojoScraper.properties`, with content
+
+```
+username = <DOJO_USER>
+password = <DOJO_PASSWORD>
+```
+
+Note that `secret` is used internally by the web server to prevent abuse and doesn't need to be coordinated with anything else. Just about any string will work.
 
 The other `secrets` need to be coordinated with API clients so that they can have access to the more resource intensive operations like reindexing. You can use multiple strings (separated by a `|`) to differentiate between API users, and pass any one of them along with API calls.
 
